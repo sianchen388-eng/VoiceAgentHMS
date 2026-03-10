@@ -21,17 +21,19 @@ jobs:
         distribution: 'temurin'
 
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v2
 
-    - name: Fix gradlew
+    - name: Download Gradle Wrapper
       run: |
-        # Download a fresh gradlew
-        curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew -o gradlew
+        mkdir -p gradle/wrapper
+        curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+        curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.properties -o gradle/wrapper/gradle-wrapper.properties
+        curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradlew -o gradlew
+        curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradlew.bat -o gradlew.bat
         chmod +x gradlew
 
     - name: Build with Gradle
-      run: |
-        ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK
       if: success()
