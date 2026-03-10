@@ -5,11 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # x86-64 环境
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -23,23 +23,20 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Fix gradlew
+      run: |
+        # Download a fresh gradlew
+        curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew -o gradlew
+        chmod +x gradlew
+
     - name: Build with Gradle
       run: |
-        chmod +x gradlew
-        ./gradlew build
+        ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK
       if: success()
       uses: actions/upload-artifact@v4
       with:
         name: app-apk
-        path: app/build/outputs/apk/**/*.apk
-        retention-days: 7
-
-    - name: Upload build reports
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-reports
-        path: app/build/reports/
+        path: app/build/outputs/apk/debug/*.apk
         retention-days: 7
