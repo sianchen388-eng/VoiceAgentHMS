@@ -7,7 +7,6 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,14 +14,12 @@ import com.huawei.voiceagent.R
 import com.huawei.voiceagent.databinding.ActivityMainBinding
 import com.huawei.voiceagent.ui.adapter.ChatAdapter
 import com.huawei.voiceagent.ui.viewmodel.MainViewModel
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: MainViewModel by viewModels()
+    private lateinit var viewModel: MainViewModel
     private lateinit var chatAdapter: ChatAdapter
     private var ttsEngine: TextToSpeech? = null
 
@@ -43,23 +40,22 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = MainViewModel()
+
         setupUI()
         setupObservers()
         checkPermissions()
     }
 
     private fun setupUI() {
-        // 设置Toolbar
         setSupportActionBar(binding.toolbar)
 
-        // 设置RecyclerView
         chatAdapter = ChatAdapter()
         binding.rvChat.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = chatAdapter
         }
 
-        // 设置按钮点击事件
         binding.fabMic.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -127,11 +123,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 initVoiceComponents()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) -> {
-                Toast.makeText(
-                    this,
-                    "需要麦克风权限来进行语音识别",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "需要麦克风权限来进行语音识别", Toast.LENGTH_LONG).show()
                 requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
             else -> {
@@ -141,10 +133,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun initVoiceComponents() {
-        // 初始化TTS
         ttsEngine = TextToSpeech(this, this)
-        
-        // 初始化语音识别（模拟模式）
         viewModel.initSpeechRecognizer(this)
     }
 
